@@ -1,0 +1,16 @@
+{
+  "name": "福岡 定期券プランナー",
+  "short_name": "定期券プランナー",
+  "description": "福岡市内の鉄道通勤で、定期券をどう買えば一番お得かを判定します",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f1ea",
+  "theme_color": "#c96f4a",
+  "lang": "ja",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

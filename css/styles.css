@@ -1,0 +1,165 @@
+/* commupass_fukuoka  ―  styles */
+:root{
+  --bg:#f6f1ea; --card:#ffffff; --ink:#33302c; --muted:#8a827a;
+  --primary:#c96f4a; --primary-d:#a9572f; --accent:#3d9970;
+  --line:#e7ddd0; --warn:#c0392b; --good:#2e7d5b;
+  --radius:18px; --shadow:0 4px 18px rgba(120,90,60,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic UI",system-ui,sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.6;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3{margin:0 0 .4em; font-weight:700; line-height:1.35}
+a{color:var(--primary-d)}
+
+.apphead{padding:20px 16px 10px; text-align:center}
+.apphead h1{font-size:1.35rem; color:var(--primary-d)}
+.apphead p{margin:0; font-size:.82rem; color:var(--muted)}
+
+.tabs{
+  position:sticky; top:0; z-index:20; display:flex; gap:6px;
+  padding:10px 12px; background:var(--bg); justify-content:center; flex-wrap:wrap;
+}
+.tab{
+  border:1px solid var(--line); background:#fff; color:var(--muted);
+  padding:7px 16px; border-radius:999px; font:inherit; font-size:.9rem; cursor:pointer;
+}
+.tab.active{background:var(--primary); color:#fff; border-color:var(--primary)}
+
+main{max-width:760px; margin:0 auto; padding:6px 12px 40px}
+.panel{display:none}
+.panel.active{display:block}
+
+.card{
+  background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:16px; margin-bottom:14px;
+}
+.note,.muted{color:var(--muted)}
+.small{font-size:.8rem}
+.muted.small,.small.muted{font-size:.8rem; color:var(--muted)}
+.note{font-size:.8rem; padding:0 4px}
+.warn{color:var(--warn); font-weight:700}
+.est{background:#f0e5d6; color:#8a6d3b; font-size:.7rem; padding:1px 6px; border-radius:999px}
+
+/* 経路 */
+.odrow{display:flex; align-items:flex-end; gap:10px}
+.odfield{flex:1; display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:var(--muted)}
+.odfield select{
+  font:inherit; font-size:1rem; padding:9px 10px; border:1px solid var(--line);
+  border-radius:12px; background:#fff; color:var(--ink); width:100%;
+}
+#swapBtn{
+  flex:0 0 auto; width:40px; height:40px; border-radius:12px; border:1px solid var(--line);
+  background:#fff; font-size:1.1rem; cursor:pointer; margin-bottom:2px;
+}
+
+.routeline{display:flex; flex-direction:column; gap:6px; margin-bottom:12px}
+.segchip{
+  border-left:5px solid var(--c,#ccc); background:#faf6f0; border-radius:10px;
+  padding:8px 12px; display:flex; flex-direction:column;
+}
+.segchip b{font-size:.92rem}
+.segchip span{font-size:.82rem; color:var(--muted)}
+.xfer{font-size:.8rem; color:var(--muted); padding-left:6px}
+
+.structcard{
+  display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line);
+  border-radius:12px; padding:12px; margin-bottom:8px; cursor:pointer; background:#fff;
+}
+.structcard.sel{border-color:var(--primary); background:#fdf6f2}
+.structcard input{margin-top:3px}
+.sc-title{font-weight:700; margin-bottom:4px}
+.sc-leg{font-size:.85rem; margin:2px 0}
+.sc-note{font-size:.78rem; color:var(--muted); margin-top:4px}
+.sc-total{margin-top:6px; font-size:.9rem}
+.op{display:inline-block; font-size:.72rem; color:#fff; padding:1px 7px; border-radius:999px; background:#999}
+.op-subway{background:#c96f4a}.op-jr{background:#e0803a}.op-nishitetsu{background:#c94f7c}.op-renraku{background:#6a6a8a}
+
+/* 運賃 */
+.farecard{border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px}
+.fc-head{font-weight:700}
+.fc-src{font-size:.75rem; color:var(--muted); margin:2px 0 8px}
+.fc-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
+.fc-field{display:flex; flex-direction:column; gap:3px; font-size:.72rem; color:var(--muted)}
+.fc-field input{font:inherit; font-size:.95rem; padding:7px 8px; border:1px solid var(--line); border-radius:9px; width:100%}
+.fc-links{display:flex; gap:12px; flex-wrap:wrap; margin:8px 0 4px; font-size:.8rem}
+.linkbtn{background:none; border:none; color:var(--primary-d); font:inherit; font-size:.8rem; cursor:pointer; padding:4px 0; text-decoration:underline}
+
+/* 休日 */
+.field{margin-bottom:14px}
+.flabel{display:block; font-size:.82rem; color:var(--muted); margin-bottom:5px; font-weight:500}
+.field select,.periodrow select,.periodrow input,.exrow select,.exrow input,textarea{
+  font:inherit; padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--ink);
+}
+textarea{width:100%; font-size:.9rem; resize:vertical}
+.dowrow{display:flex; gap:5px}
+.dowbtn{
+  width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:#fff;
+  font:inherit; cursor:pointer; color:var(--muted);
+}
+.dowbtn.on{background:var(--accent); color:#fff; border-color:var(--accent)}
+.dowbtn:disabled{opacity:.55; cursor:not-allowed}
+.checkrow{display:flex; align-items:center; gap:8px; margin:7px 0; font-size:.9rem}
+.checkrow .hint{font-size:.75rem; color:var(--muted)}
+.shiftgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
+.sg-cell{display:flex; flex-direction:column; gap:3px; font-size:.75rem; color:var(--muted)}
+.sg-cell input{font:inherit; padding:6px; border:1px solid var(--line); border-radius:8px}
+.exlist{display:flex; flex-direction:column; gap:8px; margin-bottom:8px}
+.exrow{display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:.85rem}
+.exrow select,.exrow input{font-size:.82rem; padding:6px 8px}
+.addbtn{border:1px dashed var(--line); background:#fff; color:var(--primary-d); font:inherit; padding:8px 14px; border-radius:10px; cursor:pointer}
+.periodrow{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.periodrow input[type=number]{width:80px}
+
+/* 結果 */
+.resultbar{display:flex; gap:8px; margin-bottom:12px; justify-content:flex-end}
+.pill{border:none; background:var(--primary); color:#fff; font:inherit; padding:8px 18px; border-radius:999px; cursor:pointer}
+.pill.ghost{background:#fff; color:var(--muted); border:1px solid var(--line)}
+.pill:disabled{opacity:.6}
+.rsec{margin-bottom:20px}
+.rsec h3{font-size:1rem; color:var(--primary-d); border-bottom:2px solid var(--line); padding-bottom:4px}
+.rankrow{display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px dashed var(--line)}
+.rankrow .rk{
+  flex:0 0 26px; height:26px; border-radius:50%; background:#eee; color:var(--muted);
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem;
+}
+.rankrow.top .rk{background:var(--primary); color:#fff}
+.rkbody{font-size:.88rem}
+
+.barrow{display:flex; align-items:center; gap:8px; margin:6px 0; font-size:.82rem}
+.barrow .bl{flex:0 0 42%}
+.barrow .btrack{flex:1; height:14px; background:#f0e9df; border-radius:999px; overflow:hidden}
+.barrow .bfill{height:100%; background:#c9a58c; border-radius:999px}
+.barrow.best .bfill{background:var(--accent)}
+.barrow .bv{flex:0 0 auto; font-variant-numeric:tabular-nums; font-size:.78rem}
+.barrow.best .bv{color:var(--good); font-weight:700}
+
+.mtable{width:100%; border-collapse:collapse; font-size:.8rem; margin-top:6px}
+.mtable th,.mtable td{border:1px solid var(--line); padding:5px 6px; text-align:center; font-variant-numeric:tabular-nums}
+.mtable th{background:#faf6f0; font-weight:500}
+.mtable tr.lose{background:#fbeee9}
+.mtable .neg{color:var(--warn)} .mtable .pos{color:var(--good)}
+
+.inlineform{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px}
+.if-field{display:flex; flex-direction:column; gap:3px; font-size:.74rem; color:var(--muted)}
+.if-field input,.if-field select{font:inherit; font-size:.9rem; padding:6px 8px; border:1px solid var(--line); border-radius:9px}
+
+.disclaimer{font-size:.76rem; color:var(--muted); background:#faf6f0; border-radius:10px; padding:10px 12px; margin-top:10px}
+
+.appfoot{max-width:760px; margin:0 auto; padding:16px 16px 40px; text-align:center; font-size:.76rem; color:var(--muted)}
+.appfoot .links{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:6px}
+
+@media(max-width:560px){
+  .odrow{flex-wrap:wrap}
+  .odfield{flex:1 1 100%}
+  #swapBtn{align-self:center; margin:2px 0}
+  .fc-grid,.shiftgrid{grid-template-columns:repeat(2,1fr)}
+  .barrow{flex-wrap:wrap}
+  .barrow .bl{flex:1 1 100%}
+  .barrow .btrack{flex:1 1 70%}
+  main{padding:6px 8px 40px}
+  .card{padding:13px}
+}

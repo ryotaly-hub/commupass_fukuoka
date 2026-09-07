@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#c96f4a">
+<title>福岡 定期券プランナー</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="apphead">
+  <h1>福岡 定期券プランナー</h1>
+  <p>福岡市内の鉄道通勤で、定期券をどう買えば一番お得かを判定します</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="route">経路</button>
+  <button class="tab" data-tab="fare">運賃</button>
+  <button class="tab" data-tab="holiday">休日</button>
+  <button class="tab" data-tab="result">結果</button>
+</nav>
+
+<main>
+  <!-- 経路 -->
+  <section id="panel-route" class="panel active">
+    <div class="card">
+      <div class="odrow">
+        <label class="odfield"><span>出発駅（自宅の最寄り）</span>
+          <select id="fromSel"></select>
+        </label>
+        <button id="swapBtn" title="入れ替え" aria-label="出発と到着を入れ替え">⇅</button>
+        <label class="odfield"><span>到着駅（勤務先の最寄り）</span>
+          <select id="toSel"></select>
+        </label>
+      </div>
+    </div>
+    <div id="routeResult" class="card"></div>
+    <p class="note">対応駅は福岡市内＋通勤圏の主要駅です。無い駅は「運賃」タブで区間を手入力できます。</p>
+  </section>
+
+  <!-- 運賃 -->
+  <section id="panel-fare" class="panel">
+    <div id="fareForm" class="card"></div>
+  </section>
+
+  <!-- 休日 -->
+  <section id="panel-holiday" class="panel">
+    <div id="holidayForm" class="card"></div>
+  </section>
+
+  <!-- 結果 -->
+  <section id="panel-result" class="panel">
+    <div class="resultbar">
+      <button id="pdfBtn" class="pill">PDFで保存</button>
+      <button id="resetBtn" class="pill ghost">入力をリセット</button>
+    </div>
+    <div id="resultBox" class="card"></div>
+  </section>
+</main>
+
+<footer class="appfoot">
+  <p>運賃・定期額は改定されます。表示は初期めやすで、最終確認は各社の公式運賃検索・窓口で。</p>
+  <p class="links">
+    <a href="https://subway.city.fukuoka.lg.jp/fare/teiki.php" target="_blank" rel="noopener">福岡市地下鉄</a>
+    <a href="https://www.nishitetsu.jp/train/kippu/teiki/annnai/tsuukin/" target="_blank" rel="noopener">西鉄電車</a>
+    <a href="https://www.jrkyushu.co.jp/railway/ticket/rule/04/" target="_blank" rel="noopener">JR九州</a>
+  </p>
+</footer>
+
+<script src="js/lib/jspdf.umd.min.js"></script>
+<script src="js/lib/html2canvas.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
