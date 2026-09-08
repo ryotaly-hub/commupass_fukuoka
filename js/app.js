@@ -524,13 +524,17 @@ function buildStnPop() {
   document.body.append(backdrop, stnPop);
   inp.oninput = () => filterStnPop(inp.value);
   backdrop.onclick = closeStnPop;
-  document.addEventListener('click', e => {
+  document.addEventListener('pointerdown', e => {
     if (!stnPop || stnPop.hidden) return;
     if (stnPop.contains(e.target)) return;
-    if (e.target.classList && e.target.classList.contains('stnsel-btn')) return;
+    if (e.target.closest && e.target.closest('.stnsel-btn')) return;
     closeStnPop();
   });
-  window.addEventListener('resize', closeStnPop);
+  // 画面回転などで位置がずれた時だけ閉じる（キーボード表示のresizeでは閉じない）
+  let ow = window.innerWidth;
+  window.addEventListener('resize', () => {
+    if (Math.abs(window.innerWidth - ow) > 80) { ow = window.innerWidth; closeStnPop(); }
+  });
   stnPop._input = inp; stnPop._list = list; stnPop._backdrop = backdrop;
 }
 
