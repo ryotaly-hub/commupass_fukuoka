@@ -1,7 +1,7 @@
-# 福岡 定期券そろばん（commupass_fukuoka）
+# どれトク？ふくおかの定期（commupass_fukuoka）
 
 福岡市内の鉄道で通勤する人が「定期券をどう買えば一番お得か」を判定する PWA。
-駅の選択は路線別に色分け。ヘッダーは福岡の街（タワー・ドーム・屋台・電車）のイラスト、
+駅の選択は路線別に色分け。ヘッダーは福岡の街（タワー・天神ビル・ドーム・電車・那珂川）の実写コラージュ、
 配色は博多織インスパイアの紅・藍・金茶。
 
 ## できること
@@ -31,7 +31,7 @@ css/styles.css
 js/data.js     路線・駅・連絡定期ルール・主要区間の定期代（初期めやす）・祝日
 js/app.js      経路探索・構成候補・出勤日数エンジン・戦略比較・途中下車・払戻し・色分けドロップダウン・UI
 js/lib/        jsPDF, html2canvas（同梱・オフラインPDF用）
-img/hero.webp  ヘッダーの福岡イラスト（Nano Banana Pro 生成）
+img/hero.webp  ヘッダーの福岡コラージュ（Nano Banana Pro 生成の実写風モンタージュ）
 manifest.webmanifest / sw.js / icons/
 server.ps1 + ローカルサーバー起動.cmd   ローカル確認用（http://localhost:8901/）
 docs/参考リンク.txt   参照した各社公式ページ

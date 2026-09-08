@@ -16,16 +16,16 @@ body{
 h1,h2,h3{margin:0 0 .4em; font-weight:700; line-height:1.35}
 a{color:var(--primary-d)}
 
-/* ヘッダー：福岡のヒーロー画像（博多タワー・ドーム・屋台・電車）*/
+/* ヘッダー：福岡の実写コラージュ（タワー・天神ビル・ドーム・電車・那珂川）*/
 .apphead{
   position:relative; text-align:center;
   background:linear-gradient(160deg,#f3e7cf 0%,#eedcc0 55%,#e6c9a6 100%);
   background-image:
-    linear-gradient(180deg, rgba(255,251,243,.34) 0%, rgba(255,251,243,.05) 42%, rgba(255,251,243,.30) 100%),
+    linear-gradient(180deg, rgba(250,244,232,.30) 0%, rgba(250,244,232,.04) 38%, rgba(250,244,232,.16) 100%),
     url("../img/hero.webp");
-  background-size:cover; background-position:center 78%;
+  background-size:cover; background-position:center top;
 }
-.apphead-inner{padding:26px 18px 190px; max-width:760px; margin:0 auto}
+.apphead-inner{padding:24px 18px 210px; max-width:760px; margin:0 auto}
 .apphead h1{
   font-size:1.75rem; letter-spacing:.03em; color:var(--primary-d);
   text-shadow:0 1px 0 rgba(255,253,247,.9), 0 2px 14px rgba(255,250,240,.8);

@@ -1,5 +1,5 @@
 /* オフラインキャッシュ（アプリ本体一式）。 */
-const CACHE = 'commupass-fukuoka-v3';
+const CACHE = 'commupass-fukuoka-v4';
 const ASSETS = [
   './',
   './index.html',

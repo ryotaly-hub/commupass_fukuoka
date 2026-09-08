@@ -1,7 +1,7 @@
 {
-  "name": "福岡 定期券そろばん",
-  "short_name": "定期券そろばん",
-  "description": "通勤定期、いちばんトクする買い方は？ 福岡の地下鉄・西鉄・JRで判定します",
+  "name": "どれトク？ふくおかの定期",
+  "short_name": "ふくおかの定期",
+  "description": "福岡の地下鉄・西鉄・JRで、通勤定期のいちばんトクする買い方を判定します",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
