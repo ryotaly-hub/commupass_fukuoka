@@ -55,6 +55,11 @@ main{max-width:760px; margin:0 auto; padding:6px 12px 40px}
   flex:0 0 auto; width:40px; height:40px; border-radius:12px; border:1px solid var(--line);
   background:#fff; font-size:1.1rem; cursor:pointer; margin-bottom:2px;
 }
+.viafield{margin-top:10px}
+.viafield select{
+  font:inherit; font-size:1rem; padding:9px 10px; border:1px solid var(--line);
+  border-radius:12px; background:#fff; color:var(--ink); width:100%;
+}
 
 .routeline{display:flex; flex-direction:column; gap:6px; margin-bottom:12px}
 .segchip{

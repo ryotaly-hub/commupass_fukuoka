@@ -237,8 +237,8 @@ const HOLIDAY_PRESETS = {
     restDows: [0, 6], useHolidays: false, useYearEnd: true, altSat: 0,
   },
   sat_alt: {
-    label: '週休2日（隔週で土曜出勤）＋祝日',
-    restDows: [0, 6], useHolidays: true, useYearEnd: true, altSat: 2, // 第2・第4以外の土曜は出勤扱い
+    label: '土曜出勤あり（第○週のみ）＋祝日',
+    restDows: [0, 6], useHolidays: true, useYearEnd: true, altSat: 1, // 既定＝第2・4週の土曜出勤（下で変更可）
   },
   weekend_only: {
     label: '土日のみ休み（祝日出勤・年末年始なし）',
