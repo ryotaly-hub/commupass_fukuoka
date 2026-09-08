@@ -618,6 +618,126 @@ function updateStnBtn(target) {
   btn.appendChild(document.createTextNode(v));
 }
 
+/* ---- 路線図モーダル（SVG・ボタンで拡大）---- */
+function routeMapSVG(highlight) {
+  const V = MAP_VIEWBOX;
+  const hi = new Set(highlight || []);
+  const p = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${V.x} ${V.y} ${V.w} ${V.h}">`];
+  p.push(`<rect x="${V.x}" y="${V.y}" width="${V.w}" height="${V.h}" fill="#fffdf7"/>`);
+  // 徒歩連絡
+  for (const t of TRANSFERS) {
+    if (t.kind === 'walk' && t.a !== t.b && STATION_XY[t.a] && STATION_XY[t.b]) {
+      const [x1, y1] = STATION_XY[t.a], [x2, y2] = STATION_XY[t.b];
+      p.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#b8ab95" stroke-width="2.5" stroke-dasharray="4 5"/>`);
+    }
+  }
+  // 路線
+  for (const L of Object.values(LINES)) {
+    const pts = L.st.filter(s => STATION_XY[s]).map(s => STATION_XY[s].join(',')).join(' ');
+    p.push(`<polyline points="${pts}" fill="none" stroke="${L.color}" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.92"/>`);
+  }
+  // 駅
+  const xfer = new Set();
+  Object.keys(stationLines).forEach(s => { if (stationLines[s].length > 1) xfer.add(s); });
+  TRANSFERS.forEach(t => { xfer.add(t.a); xfer.add(t.b); });
+  const done = new Set();
+  for (const L of Object.values(LINES)) {
+    for (const s of L.st) {
+      if (!STATION_XY[s] || done.has(s)) continue;
+      done.add(s);
+      const [x, y] = STATION_XY[s];
+      const isX = xfer.has(s), isHi = hi.has(s);
+      const r = isHi ? 8 : isX ? 6 : 4;
+      p.push(`<circle cx="${x}" cy="${y}" r="${r}" fill="${isHi ? '#b23a2e' : '#fff'}" stroke="${isHi ? '#7a1f16' : isX ? '#2c2622' : L.color}" stroke-width="${isX || isHi ? 3 : 2.4}"/>`);
+      const fs = isHi ? 17 : isX ? 15 : 11.5;
+      p.push(`<text x="${x + 9}" y="${y - 7}" font-size="${fs}" font-weight="${isX || isHi ? 700 : 400}" fill="${isHi ? '#7a1f16' : '#2c2622'}" paint-order="stroke" stroke="#fffdf7" stroke-width="3.6" stroke-linejoin="round">${s}</text>`);
+    }
+  }
+  p.push('</svg>');
+  return p.join('');
+}
+
+function routeMapLegend() {
+  return '<div class="maplegend">' + Object.values(LINES).map(L =>
+    `<span class="mlg"><i style="background:${L.color}"></i>${L.name}</span>`).join('') + '</div>';
+}
+
+let mapModal = null, mapZoom = 1;
+
+function openRouteMap() {
+  const hi = [];
+  if (state.from) hi.push(state.from);
+  if (state.to) hi.push(state.to);
+  if (state.via) hi.push(state.via);
+  if (!mapModal) {
+    mapModal = el('div', 'mapmodal'); mapModal.hidden = true;
+    mapModal.innerHTML =
+      '<div class="mapbar"><strong>福岡の路線図</strong>' +
+      '<div class="mapzoom"><button type="button" data-z="out" aria-label="縮小">－</button>' +
+      '<button type="button" data-z="reset" aria-label="全体表示">全体</button>' +
+      '<button type="button" data-z="in" aria-label="拡大">＋</button></div>' +
+      '<button type="button" class="mapclose" aria-label="閉じる">✕</button></div>' +
+      '<div class="mapviewport"><div class="mapcanvas"></div></div>' + routeMapLegend();
+    document.body.appendChild(mapModal);
+    mapModal.querySelector('.mapclose').onclick = closeRouteMap;
+    mapModal.querySelectorAll('.mapzoom button').forEach(b => b.onclick = () => zoomMap(b.dataset.z));
+    const vp = mapModal.querySelector('.mapviewport');
+    let down = false, sx, sy, sl, st;
+    vp.addEventListener('pointerdown', e => { down = true; sx = e.clientX; sy = e.clientY; sl = vp.scrollLeft; st = vp.scrollTop; try { vp.setPointerCapture(e.pointerId); } catch (x) {} });
+    vp.addEventListener('pointermove', e => { if (down) { vp.scrollLeft = sl - (e.clientX - sx); vp.scrollTop = st - (e.clientY - sy); } });
+    vp.addEventListener('pointerup', () => { down = false; });
+    vp.addEventListener('pointercancel', () => { down = false; });
+    vp.addEventListener('wheel', e => { e.preventDefault(); zoomMap(e.deltaY < 0 ? 'in' : 'out'); }, { passive: false });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && mapModal && !mapModal.hidden) closeRouteMap(); });
+    mapModal._vp = vp;
+  }
+  mapModal.querySelector('.mapcanvas').innerHTML = routeMapSVG(hi);
+  mapModal._svg = mapModal.querySelector('.mapcanvas svg');
+  mapModal.hidden = false;
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    // 最初は読める倍率で、選択駅（無ければ博多）を中央に
+    mapZoom = 0.82;
+    applyMapZoom();
+    centerMapOn(STATION_XY[state.to] || STATION_XY[state.from] || STATION_XY['博多']);
+  });
+}
+
+function centerMapOn(pt) {
+  if (!mapModal || !pt) return;
+  const vp = mapModal._vp;
+  vp.scrollLeft = (pt[0] - MAP_VIEWBOX.x) * mapZoom - vp.clientWidth / 2;
+  vp.scrollTop = (pt[1] - MAP_VIEWBOX.y) * mapZoom - vp.clientHeight / 2;
+}
+
+function fitMap() {
+  if (!mapModal) return;
+  const vp = mapModal._vp;
+  mapZoom = Math.max(0.2, Math.min(1.6,
+    Math.min((vp.clientWidth - 6) / MAP_VIEWBOX.w, (vp.clientHeight - 6) / MAP_VIEWBOX.h)));
+  applyMapZoom();
+  vp.scrollLeft = 0; vp.scrollTop = 0;
+}
+function applyMapZoom() {
+  const svg = mapModal._svg;
+  svg.setAttribute('width', Math.round(MAP_VIEWBOX.w * mapZoom));
+  svg.setAttribute('height', Math.round(MAP_VIEWBOX.h * mapZoom));
+}
+function zoomMap(dir) {
+  if (dir === 'reset') { fitMap(); return; }
+  const vp = mapModal._vp;
+  const cxRatio = (vp.scrollLeft + vp.clientWidth / 2) / (MAP_VIEWBOX.w * mapZoom);
+  const cyRatio = (vp.scrollTop + vp.clientHeight / 2) / (MAP_VIEWBOX.h * mapZoom);
+  mapZoom = Math.max(0.3, Math.min(4, mapZoom * (dir === 'in' ? 1.25 : 0.8)));
+  applyMapZoom();
+  vp.scrollLeft = cxRatio * MAP_VIEWBOX.w * mapZoom - vp.clientWidth / 2;
+  vp.scrollTop = cyRatio * MAP_VIEWBOX.h * mapZoom - vp.clientHeight / 2;
+}
+function closeRouteMap() {
+  if (mapModal) mapModal.hidden = true;
+  document.body.style.overflow = '';
+}
+
 function setTab(name) {
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   $$('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
@@ -1111,6 +1231,7 @@ function init() {
     state.structIdx = 0; save(); renderRouteTab();
   };
   $$('.tab').forEach(t => t.onclick = () => setTab(t.dataset.tab));
+  $('#mapBtn').onclick = openRouteMap;
   $('#pdfBtn').onclick = exportPDF;
   $('#resetBtn').onclick = () => {
     if (confirm('入力内容をすべて消去します。よろしいですか？')) {

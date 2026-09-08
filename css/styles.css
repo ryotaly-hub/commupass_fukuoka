@@ -69,6 +69,44 @@ main{max-width:760px; margin:0 auto; padding:14px 12px 40px}
   background:var(--card); font-size:1.1rem; cursor:pointer; margin-bottom:2px; color:var(--primary-d);
 }
 .viafield{margin-top:12px}
+.maplink{
+  width:100%; margin-top:14px; padding:11px 12px; border:1px solid var(--line);
+  border-radius:12px; background:var(--tint); color:var(--primary-d);
+  font:inherit; font-size:.92rem; font-weight:500; cursor:pointer;
+}
+.maplink:active{background:#f3e8d6}
+
+/* 路線図モーダル */
+.mapmodal{position:fixed; inset:0; z-index:100; background:var(--bg); display:flex; flex-direction:column}
+.mapmodal[hidden]{display:none!important}
+.mapbar{
+  display:flex; align-items:center; gap:10px; padding:9px 12px;
+  background:var(--card); border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.mapbar strong{flex:1; color:var(--primary-d); font-size:.98rem}
+.mapzoom{display:flex; gap:5px}
+.mapzoom button,.mapclose{
+  height:38px; border:1px solid var(--line); background:var(--card); color:var(--ink);
+  border-radius:9px; font:inherit; font-size:1rem; cursor:pointer;
+}
+.mapzoom button{min-width:44px}
+.mapclose{width:40px}
+.mapviewport{
+  flex:1; overflow:auto; background:#fffdf7; touch-action:none;
+  cursor:grab; -webkit-overflow-scrolling:touch;
+}
+.mapviewport:active{cursor:grabbing}
+.mapcanvas{display:inline-block}
+.mapcanvas svg{display:block}
+.maplegend{
+  position:absolute; left:10px; bottom:10px; z-index:2;
+  background:rgba(255,253,247,.94); border:1px solid var(--line); border-radius:10px;
+  padding:8px 10px; display:flex; flex-direction:column; gap:3px;
+  font-size:.72rem; color:var(--ink); box-shadow:0 2px 10px rgba(80,50,30,.15);
+  max-height:46vh; overflow:auto;
+}
+.mlg{display:flex; align-items:center; gap:6px; white-space:nowrap}
+.mlg i{width:16px; height:5px; border-radius:3px; flex:0 0 auto}
 
 /* 駅ドロップダウン */
 .stnsel{position:relative}
