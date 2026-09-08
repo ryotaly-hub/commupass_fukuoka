@@ -618,48 +618,114 @@ function updateStnBtn(target) {
   btn.appendChild(document.createTextNode(v));
 }
 
-/* ---- 路線図モーダル（SVG・ボタンで拡大）---- */
+/* ---- 路線図モーダル（デフォルメSVG・引き出し線ラベル・ボタンで拡大）---- */
+let mapVB = { x: 0, y: 0, w: 1000, h: 1000 };
+
 function routeMapSVG(highlight) {
-  const V = MAP_VIEWBOX;
   const hi = new Set(highlight || []);
-  const p = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${V.x} ${V.y} ${V.w} ${V.h}">`];
-  p.push(`<rect x="${V.x}" y="${V.y}" width="${V.w}" height="${V.h}" fill="#fffdf7"/>`);
-  // 徒歩連絡
+  const xferSet = new Set();
+  Object.keys(stationLines).forEach(s => { if (stationLines[s].length > 1) xferSet.add(s); });
+  TRANSFERS.forEach(t => { if (STATION_XY[t.a] && STATION_XY[t.b]) { xferSet.add(t.a); xferSet.add(t.b); } });
+
+  // 描画対象の駅（座標があるもの）
+  const seen = new Set(), stns = [];
+  for (const L of Object.values(LINES)) for (const s of L.st) {
+    if (!STATION_XY[s] || seen.has(s)) continue;
+    seen.add(s);
+    const [x, y] = STATION_XY[s];
+    stns.push({ name: s, x, y, color: L.color, isX: xferSet.has(s), hi: hi.has(s) });
+  }
+  // 範囲（ラベルの余白込み）
+  let mnx = 1e9, mny = 1e9, mxx = -1e9, mxy = -1e9;
+  stns.forEach(s => { mnx = Math.min(mnx, s.x); mny = Math.min(mny, s.y); mxx = Math.max(mxx, s.x); mxy = Math.max(mxy, s.y); });
+  const PAD = 120;
+  mapVB = { x: mnx - PAD, y: mny - PAD, w: (mxx - mnx) + PAD * 2, h: (mxy - mny) + PAD * 2 };
+
+  const p = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${mapVB.x} ${mapVB.y} ${mapVB.w} ${mapVB.h}" font-family="'Zen Maru Gothic','Hiragino Maru Gothic ProN',sans-serif">`];
+  p.push(`<rect x="${mapVB.x}" y="${mapVB.y}" width="${mapVB.w}" height="${mapVB.h}" fill="#fffdf7"/>`);
+
+  // 徒歩連絡（点線）
   for (const t of TRANSFERS) {
-    if (t.kind === 'walk' && t.a !== t.b && STATION_XY[t.a] && STATION_XY[t.b]) {
+    if (t.a !== t.b && STATION_XY[t.a] && STATION_XY[t.b]) {
       const [x1, y1] = STATION_XY[t.a], [x2, y2] = STATION_XY[t.b];
-      p.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#b8ab95" stroke-width="2.5" stroke-dasharray="4 5"/>`);
+      p.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#9a8f7c" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round"/>`);
     }
   }
-  // 路線
+  // 路線（太め・白フチ）
   for (const L of Object.values(LINES)) {
     const pts = L.st.filter(s => STATION_XY[s]).map(s => STATION_XY[s].join(',')).join(' ');
-    p.push(`<polyline points="${pts}" fill="none" stroke="${L.color}" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.92"/>`);
+    if (!pts) continue;
+    p.push(`<polyline points="${pts}" fill="none" stroke="#fffdf7" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>`);
+    p.push(`<polyline points="${pts}" fill="none" stroke="${L.color}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>`);
   }
-  // 駅
-  const xfer = new Set();
-  Object.keys(stationLines).forEach(s => { if (stationLines[s].length > 1) xfer.add(s); });
-  TRANSFERS.forEach(t => { xfer.add(t.a); xfer.add(t.b); });
-  const done = new Set();
-  for (const L of Object.values(LINES)) {
-    for (const s of L.st) {
-      if (!STATION_XY[s] || done.has(s)) continue;
-      done.add(s);
-      const [x, y] = STATION_XY[s];
-      const isX = xfer.has(s), isHi = hi.has(s);
-      const r = isHi ? 8 : isX ? 6 : 4;
-      p.push(`<circle cx="${x}" cy="${y}" r="${r}" fill="${isHi ? '#b23a2e' : '#fff'}" stroke="${isHi ? '#7a1f16' : isX ? '#2c2622' : L.color}" stroke-width="${isX || isHi ? 3 : 2.4}"/>`);
-      const fs = isHi ? 17 : isX ? 15 : 11.5;
-      p.push(`<text x="${x + 9}" y="${y - 7}" font-size="${fs}" font-weight="${isX || isHi ? 700 : 400}" fill="${isHi ? '#7a1f16' : '#2c2622'}" paint-order="stroke" stroke="#fffdf7" stroke-width="3.6" stroke-linejoin="round">${s}</text>`);
+  // 「◯◯方面」注記
+  if (typeof MAP_NOTES !== 'undefined') {
+    for (const n of MAP_NOTES) {
+      if (!STATION_XY[n.at]) continue;
+      const [x, y] = STATION_XY[n.at];
+      p.push(`<text x="${x + (n.dx || 0)}" y="${y + (n.dy || 0)}" font-size="12" fill="#8c8175" text-anchor="${n.anchor || 'start'}" paint-order="stroke" stroke="#fffdf7" stroke-width="3.5" stroke-linejoin="round">${n.text}</text>`);
     }
+  }
+  // 駅マーカー
+  for (const s of stns) {
+    const r = s.hi ? 9 : s.isX ? 7 : 5;
+    p.push(`<circle cx="${s.x}" cy="${s.y}" r="${r}" fill="${s.hi ? '#b23a2e' : '#fff'}" stroke="${s.hi ? '#7a1f16' : s.isX ? '#2c2622' : s.color}" stroke-width="${s.isX || s.hi ? 3.5 : 3}"/>`);
+  }
+
+  // ラベル配置（8方向×距離を試し、衝突しなければ確定。遠いものは引き出し線）
+  const placed = [];
+  const dotBoxes = stns.map(s => ({ x: s.x - 8, y: s.y - 8, w: 16, h: 16 }));
+  const overlaps = b => {
+    for (const q of placed) if (b.x < q.x + q.w && b.x + b.w > q.x && b.y < q.y + q.h && b.y + b.h > q.y) return true;
+    for (const q of dotBoxes) if (b.x < q.x + q.w && b.x + b.w > q.x && b.y < q.y + q.h && b.y + b.h > q.y) return true;
+    return false;
+  };
+  const DIRS = [[1, 0, 'start'], [-1, 0, 'end'], [0, -1, 'middle'], [0, 1, 'middle'],
+    [1, -1, 'start'], [-1, -1, 'end'], [1, 1, 'start'], [-1, 1, 'end']];
+  const order = stns.slice().sort((a, b) => (b.hi - a.hi) || (b.isX - a.isX));
+  const labels = [];
+  for (const s of order) {
+    const fs = s.hi ? 17 : s.isX ? 14 : 11.5;
+    const w = s.name.length * fs * 1.02 + 4, h = fs * 1.1;
+    let ok = false;
+    for (const dist of [12, 22, 34, 48, 64, 82]) {
+      for (const [dx, dy, anc] of DIRS) {
+        const lx = s.x + dx * dist + (dx > 0 ? 3 : dx < 0 ? -3 : 0);
+        const ly = s.y + dy * dist + (dy > 0 ? fs * 0.5 : 0);
+        const bx = anc === 'start' ? lx : anc === 'end' ? lx - w : lx - w / 2;
+        const box = { x: bx - 2, y: ly - h * 0.78, w: w + 4, h: h + 2 };
+        if (overlaps(box)) continue;
+        placed.push(box);
+        labels.push({ s, lx, ly, anc, fs, box, leader: dist > 14 });
+        ok = true; break;
+      }
+      if (ok) break;
+    }
+    if (!ok) {
+      const lx = s.x + 12, ly = s.y + 4;
+      placed.push({ x: lx - 2, y: ly - fs, w, h: fs + 2 });
+      labels.push({ s, lx, ly, anc: 'start', fs, leader: true, box: { x: lx, y: ly } });
+    }
+  }
+  // 引き出し線 → ラベル
+  for (const L of labels) if (L.leader) {
+    const tx = L.anc === 'end' ? L.box.x + L.box.w : L.anc === 'start' ? L.box.x : L.box.x + L.box.w / 2;
+    const ty = L.box.y + L.box.h * 0.72;
+    p.push(`<line x1="${L.s.x}" y1="${L.s.y}" x2="${tx}" y2="${ty}" stroke="#cabda6" stroke-width="1.3"/>`);
+  }
+  for (const L of labels) {
+    const col = L.s.hi ? '#7a1f16' : '#2c2622';
+    const fw = (L.s.hi || L.s.isX) ? 700 : 400;
+    p.push(`<text x="${L.lx}" y="${L.ly}" font-size="${L.fs}" font-weight="${fw}" fill="${col}" text-anchor="${L.anc}" paint-order="stroke" stroke="#fffdf7" stroke-width="4.2" stroke-linejoin="round">${L.s.name}</text>`);
   }
   p.push('</svg>');
   return p.join('');
 }
 
 function routeMapLegend() {
-  return '<div class="maplegend">' + Object.values(LINES).map(L =>
-    `<span class="mlg"><i style="background:${L.color}"></i>${L.name}</span>`).join('') + '</div>';
+  return '<div class="maplegend"><button type="button" class="mlg-toggle">凡例 ▾</button>' +
+    '<div class="mlg-body">' + Object.values(LINES).map(L =>
+      `<span class="mlg"><i style="background:${L.color}"></i>${L.name}</span>`).join('') + '</div></div>';
 }
 
 let mapModal = null, mapZoom = 1;
@@ -681,6 +747,11 @@ function openRouteMap() {
     document.body.appendChild(mapModal);
     mapModal.querySelector('.mapclose').onclick = closeRouteMap;
     mapModal.querySelectorAll('.mapzoom button').forEach(b => b.onclick = () => zoomMap(b.dataset.z));
+    const lg = mapModal.querySelector('.maplegend'), lgt = mapModal.querySelector('.mlg-toggle');
+    const setLg = () => { lgt.textContent = lg.classList.contains('open') ? '凡例 ▴' : '凡例 ▾'; };
+    lgt.onclick = () => { lg.classList.toggle('open'); setLg(); };
+    if (!matchMedia('(max-width:560px)').matches) lg.classList.add('open');
+    setLg();
     const vp = mapModal.querySelector('.mapviewport');
     let down = false, sx, sy, sl, st;
     vp.addEventListener('pointerdown', e => { down = true; sx = e.clientX; sy = e.clientY; sl = vp.scrollLeft; st = vp.scrollTop; try { vp.setPointerCapture(e.pointerId); } catch (x) {} });
@@ -697,7 +768,8 @@ function openRouteMap() {
   document.body.style.overflow = 'hidden';
   requestAnimationFrame(() => {
     // 最初は読める倍率で、選択駅（無ければ博多）を中央に
-    mapZoom = 0.82;
+    const vp = mapModal._vp;
+    mapZoom = Math.min(1.05, Math.max(0.55, (vp.clientWidth - 6) / mapVB.w * 1.5));
     applyMapZoom();
     centerMapOn(STATION_XY[state.to] || STATION_XY[state.from] || STATION_XY['博多']);
   });
@@ -706,32 +778,32 @@ function openRouteMap() {
 function centerMapOn(pt) {
   if (!mapModal || !pt) return;
   const vp = mapModal._vp;
-  vp.scrollLeft = (pt[0] - MAP_VIEWBOX.x) * mapZoom - vp.clientWidth / 2;
-  vp.scrollTop = (pt[1] - MAP_VIEWBOX.y) * mapZoom - vp.clientHeight / 2;
+  vp.scrollLeft = (pt[0] - mapVB.x) * mapZoom - vp.clientWidth / 2;
+  vp.scrollTop = (pt[1] - mapVB.y) * mapZoom - vp.clientHeight / 2;
 }
 
 function fitMap() {
   if (!mapModal) return;
   const vp = mapModal._vp;
-  mapZoom = Math.max(0.2, Math.min(1.6,
-    Math.min((vp.clientWidth - 6) / MAP_VIEWBOX.w, (vp.clientHeight - 6) / MAP_VIEWBOX.h)));
+  mapZoom = Math.max(0.15, Math.min(1.6,
+    Math.min((vp.clientWidth - 6) / mapVB.w, (vp.clientHeight - 6) / mapVB.h)));
   applyMapZoom();
   vp.scrollLeft = 0; vp.scrollTop = 0;
 }
 function applyMapZoom() {
   const svg = mapModal._svg;
-  svg.setAttribute('width', Math.round(MAP_VIEWBOX.w * mapZoom));
-  svg.setAttribute('height', Math.round(MAP_VIEWBOX.h * mapZoom));
+  svg.setAttribute('width', Math.round(mapVB.w * mapZoom));
+  svg.setAttribute('height', Math.round(mapVB.h * mapZoom));
 }
 function zoomMap(dir) {
   if (dir === 'reset') { fitMap(); return; }
   const vp = mapModal._vp;
-  const cxRatio = (vp.scrollLeft + vp.clientWidth / 2) / (MAP_VIEWBOX.w * mapZoom);
-  const cyRatio = (vp.scrollTop + vp.clientHeight / 2) / (MAP_VIEWBOX.h * mapZoom);
-  mapZoom = Math.max(0.3, Math.min(4, mapZoom * (dir === 'in' ? 1.25 : 0.8)));
+  const cxRatio = (vp.scrollLeft + vp.clientWidth / 2) / (mapVB.w * mapZoom);
+  const cyRatio = (vp.scrollTop + vp.clientHeight / 2) / (mapVB.h * mapZoom);
+  mapZoom = Math.max(0.25, Math.min(4, mapZoom * (dir === 'in' ? 1.25 : 0.8)));
   applyMapZoom();
-  vp.scrollLeft = cxRatio * MAP_VIEWBOX.w * mapZoom - vp.clientWidth / 2;
-  vp.scrollTop = cyRatio * MAP_VIEWBOX.h * mapZoom - vp.clientHeight / 2;
+  vp.scrollLeft = cxRatio * mapVB.w * mapZoom - vp.clientWidth / 2;
+  vp.scrollTop = cyRatio * mapVB.h * mapZoom - vp.clientHeight / 2;
 }
 function closeRouteMap() {
   if (mapModal) mapModal.hidden = true;

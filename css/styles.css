@@ -100,12 +100,17 @@ main{max-width:760px; margin:0 auto; padding:14px 12px 40px}
 .mapcanvas svg{display:block}
 .maplegend{
   position:absolute; left:10px; bottom:10px; z-index:2;
-  background:rgba(255,253,247,.94); border:1px solid var(--line); border-radius:10px;
-  padding:8px 10px; display:flex; flex-direction:column; gap:3px;
-  font-size:.72rem; color:var(--ink); box-shadow:0 2px 10px rgba(80,50,30,.15);
-  max-height:46vh; overflow:auto;
+  background:rgba(255,253,247,.96); border:1px solid var(--line); border-radius:10px;
+  box-shadow:0 2px 10px rgba(80,50,30,.15); overflow:hidden; max-width:66vw;
 }
-.mlg{display:flex; align-items:center; gap:6px; white-space:nowrap}
+.mlg-toggle{
+  display:block; width:100%; text-align:left; border:none; background:none;
+  font:inherit; font-size:.76rem; font-weight:700; color:var(--primary-d);
+  padding:7px 12px; cursor:pointer;
+}
+.mlg-body{display:none; padding:0 12px 9px; flex-direction:column; gap:3px; max-height:44vh; overflow:auto}
+.maplegend.open .mlg-body{display:flex}
+.mlg{display:flex; align-items:center; gap:6px; white-space:nowrap; font-size:.72rem; color:var(--ink)}
 .mlg i{width:16px; height:5px; border-radius:3px; flex:0 0 auto}
 
 /* 駅ドロップダウン */
