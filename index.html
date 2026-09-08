@@ -21,10 +21,12 @@
 </header>
 
 <nav class="tabs">
-  <button class="tab active" data-tab="route">経路</button>
-  <button class="tab" data-tab="fare">運賃</button>
-  <button class="tab" data-tab="holiday">休日</button>
-  <button class="tab" data-tab="result">結果</button>
+  <span class="tabgroup">
+    <button class="tab step active" data-tab="route"><b>1</b>経路</button>
+    <button class="tab step" data-tab="holiday"><b>2</b>休日</button>
+  </span>
+  <button class="tab opt" data-tab="fare">＋運賃</button>
+  <button class="tab cta" data-tab="result">結果 <span aria-hidden="true">▶</span></button>
 </nav>
 
 <main>

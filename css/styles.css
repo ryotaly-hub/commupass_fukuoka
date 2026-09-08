@@ -36,15 +36,40 @@ a{color:var(--primary-d)}
 }
 
 .tabs{
-  position:sticky; top:0; z-index:20; display:flex; gap:6px;
+  position:sticky; top:0; z-index:20; display:flex; gap:8px; align-items:center;
   padding:10px 12px; background:var(--bg2); justify-content:center; flex-wrap:wrap;
   box-shadow:0 2px 8px rgba(120,80,45,.06);
 }
 .tab{
   border:1px solid var(--line); background:var(--card); color:var(--muted);
-  padding:7px 16px; border-radius:999px; font:inherit; font-size:.9rem; cursor:pointer;
+  padding:7px 15px; border-radius:999px; font:inherit; font-size:.9rem; cursor:pointer;
+  display:inline-flex; align-items:center; gap:5px; line-height:1;
 }
 .tab.active{background:var(--primary); color:#fff; border-color:var(--primary)}
+
+/* 設定ステップ（経路・休日）を1つのまとまりに */
+.tabgroup{
+  display:inline-flex; align-items:center; gap:4px;
+  padding:4px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+}
+.tabgroup .tab{border-color:transparent; background:transparent}
+.tabgroup .tab.active{background:var(--primary); color:#fff; border-color:var(--primary)}
+.tab.step b{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:16px; height:16px; border-radius:50%; font-size:.64rem; font-weight:700;
+  background:var(--line); color:var(--muted);
+}
+.tab.step.active b{background:rgba(255,255,255,.34); color:#fff}
+/* 補足情報（運賃） */
+.tab.opt{border-style:dashed; font-size:.85rem; color:var(--secondary)}
+.tab.opt.active{background:var(--secondary); border-color:var(--secondary); color:#fff; border-style:solid}
+/* まとめ（結果） */
+.tab.cta{
+  background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;
+  box-shadow:0 2px 8px rgba(199,146,69,.32);
+}
+.tab.cta span{font-size:.72rem}
+.tab.cta.active{background:var(--primary-d); border-color:var(--primary-d); box-shadow:none}
 
 main{max-width:760px; margin:0 auto; padding:14px 12px 40px}
 .panel{display:none}
@@ -254,7 +279,9 @@ textarea{width:100%; font-size:.9rem; resize:vertical}
   .apphead h1{font-size:1.42rem}
   .odrow{flex-wrap:wrap}
   .odfield{flex:1 1 100%}
-  #swapBtn{align-self:center; margin:2px 0; transform:rotate(90deg)}
+  #swapBtn{order:1; margin:4px auto; transform:rotate(90deg)}
+  .odrow > .odfield:first-of-type{order:0}
+  .odrow > .odfield:last-of-type{order:2}
   .fc-grid,.shiftgrid{grid-template-columns:repeat(2,1fr)}
   .barrow{flex-wrap:wrap}
   .barrow .bl{flex:1 1 100%}
