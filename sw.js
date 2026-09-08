@@ -1,5 +1,5 @@
 /* オフラインキャッシュ（アプリ本体一式）。 */
-const CACHE = 'commupass-fukuoka-v2';
+const CACHE = 'commupass-fukuoka-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS = [
   './js/app.js',
   './js/lib/jspdf.umd.min.js',
   './js/lib/html2canvas.min.js',
+  './img/hero.webp',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',

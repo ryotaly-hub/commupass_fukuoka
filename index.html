@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#c96f4a">
-<title>福岡 定期券プランナー</title>
+<meta name="theme-color" content="#b23a2e">
+<title>福岡 定期券そろばん</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,8 +14,10 @@
 </head>
 <body>
 <header class="apphead">
-  <h1>福岡 定期券プランナー</h1>
-  <p>福岡市内の鉄道通勤で、定期券をどう買えば一番お得かを判定します</p>
+  <div class="apphead-inner">
+    <h1>福岡 定期券そろばん</h1>
+    <p>通勤定期、いちばんトクする買い方は？<br>福岡の地下鉄・西鉄・JRで判定します</p>
+  </div>
 </header>
 
 <nav class="tabs">
@@ -30,17 +32,29 @@
   <section id="panel-route" class="panel active">
     <div class="card">
       <div class="odrow">
-        <label class="odfield"><span>出発駅（自宅の最寄り）</span>
-          <select id="fromSel"></select>
-        </label>
+        <div class="odfield">
+          <span>出発駅（自宅の最寄り）</span>
+          <div class="stnsel">
+            <button type="button" class="stnsel-btn" id="fromBtn">駅を選択</button>
+            <input type="hidden" id="fromSel">
+          </div>
+        </div>
         <button id="swapBtn" title="入れ替え" aria-label="出発と到着を入れ替え">⇅</button>
-        <label class="odfield"><span>到着駅（勤務先の最寄り）</span>
-          <select id="toSel"></select>
-        </label>
+        <div class="odfield">
+          <span>到着駅（勤務先の最寄り）</span>
+          <div class="stnsel">
+            <button type="button" class="stnsel-btn" id="toBtn">駅を選択</button>
+            <input type="hidden" id="toSel">
+          </div>
+        </div>
       </div>
-      <label class="odfield viafield"><span>経由駅（乗換駅の指定・任意）</span>
-        <select id="viaSel"></select>
-      </label>
+      <div class="odfield viafield">
+        <span>経由駅（乗換駅の指定・任意）</span>
+        <div class="stnsel">
+          <button type="button" class="stnsel-btn" id="viaBtn">（指定なし）</button>
+          <input type="hidden" id="viaSel">
+        </div>
+      </div>
     </div>
     <div id="routeResult" class="card"></div>
     <p class="note">対応駅は福岡市内＋通勤圏の主要駅です。無い駅は「運賃」タブで区間を手入力できます。</p>

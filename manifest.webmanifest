@@ -1,12 +1,12 @@
 {
-  "name": "福岡 定期券プランナー",
-  "short_name": "定期券プランナー",
-  "description": "福岡市内の鉄道通勤で、定期券をどう買えば一番お得かを判定します",
+  "name": "福岡 定期券そろばん",
+  "short_name": "定期券そろばん",
+  "description": "通勤定期、いちばんトクする買い方は？ 福岡の地下鉄・西鉄・JRで判定します",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f6f1ea",
-  "theme_color": "#c96f4a",
+  "background_color": "#f5efe2",
+  "theme_color": "#b23a2e",
   "lang": "ja",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

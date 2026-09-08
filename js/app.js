@@ -484,18 +484,134 @@ function refundEstimate(r, fare) {
 const $ = sel => document.querySelector(sel);
 const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-function fillStationSelect(sel, val, placeholder) {
-  sel.innerHTML = `<option value="">${placeholder || '駅を選択'}</option>`;
+/* ---- 色ユーティリティ ---- */
+function hexRgb(h) { h = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16)); }
+function tint(hex, amt) { const [r, g, b] = hexRgb(hex); const m = v => Math.round(v + (255 - v) * amt); return `rgb(${m(r)},${m(g)},${m(b)})`; }
+function shade(hex, amt) { const [r, g, b] = hexRgb(hex); const f = 1 + amt; const m = v => Math.max(0, Math.min(255, Math.round(v * f))); return `rgb(${m(r)},${m(g)},${m(b)})`; }
+
+/* ---- 駅ドロップダウン（路線別に色分け・検索可・スマホはボトムシート）---- */
+let stnPop = null, stnTarget = null;
+
+function buildStnPop() {
+  stnPop = el('div', 'stnpop'); stnPop.hidden = true;
+  const bar = el('div', 'stnpop-search');
+  const inp = el('input', 'stnpop-input'); inp.type = 'text'; inp.placeholder = '駅名・路線で絞り込み';
+  bar.appendChild(inp);
+  const list = el('div', 'stnpop-list');
+  const backdrop = el('div', 'stnpop-backdrop'); backdrop.hidden = true;
+
+  const clear = el('div', 'stnpop-opt stnpop-clear', '＊ 選択をはずす（指定なし）');
+  clear.dataset.v = ''; clear.dataset.search = ''; clear.onclick = () => chooseStn('');
+  list.appendChild(clear);
+
   for (const [lid, L] of Object.entries(LINES)) {
-    const og = el('optgroup'); og.label = L.name;
+    const head = el('div', 'stnpop-line', L.name);
+    head.style.background = tint(L.color, 0.85);
+    head.style.color = shade(L.color, -0.4);
+    head.style.borderLeftColor = L.color;
+    list.appendChild(head);
     for (const s of L.st) {
-      const o = el('option', null, s); o.value = s;
-      // 同名駅の重複はグループ内で1回
-      og.appendChild(o);
+      const row = el('div', 'stnpop-opt', s);
+      row.dataset.v = s; row.dataset.search = s.toLowerCase(); row.dataset.line = L.name.toLowerCase();
+      row.style.borderLeftColor = L.color;
+      row.onmouseenter = () => { row.style.background = tint(L.color, 0.9); };
+      row.onmouseleave = () => { row.style.background = ''; };
+      row.onclick = () => chooseStn(s);
+      list.appendChild(row);
     }
-    sel.appendChild(og);
   }
-  sel.value = val || '';
+  stnPop.append(bar, list);
+  document.body.append(backdrop, stnPop);
+  inp.oninput = () => filterStnPop(inp.value);
+  backdrop.onclick = closeStnPop;
+  document.addEventListener('click', e => {
+    if (!stnPop || stnPop.hidden) return;
+    if (stnPop.contains(e.target)) return;
+    if (e.target.classList && e.target.classList.contains('stnsel-btn')) return;
+    closeStnPop();
+  });
+  window.addEventListener('resize', closeStnPop);
+  stnPop._input = inp; stnPop._list = list; stnPop._backdrop = backdrop;
+}
+
+function openStnPop(target, btn) {
+  if (!stnPop) buildStnPop();
+  stnTarget = target;
+  stnPop._input.value = '';
+  filterStnPop('');
+  const cur = state[target] || '';
+  stnPop._list.querySelectorAll('.stnpop-opt').forEach(o => o.classList.toggle('cur', o.dataset.v === cur && cur !== ''));
+  stnPop._list.querySelector('.stnpop-clear').hidden = !cur;
+  stnPop.hidden = false;
+  const mobile = matchMedia('(max-width:560px)').matches;
+  stnPop.classList.toggle('sheet', mobile);
+  stnPop._backdrop.hidden = !mobile;
+  if (!mobile) {
+    const r = btn.getBoundingClientRect();
+    stnPop.style.left = (window.scrollX + r.left) + 'px';
+    stnPop.style.top = (window.scrollY + r.bottom + 5) + 'px';
+    stnPop.style.width = Math.max(r.width, 240) + 'px';
+  } else {
+    stnPop.style.left = stnPop.style.top = stnPop.style.width = '';
+  }
+  stnPop._input.focus();
+}
+
+function closeStnPop() {
+  if (stnPop) { stnPop.hidden = true; stnPop._backdrop.hidden = true; }
+  stnTarget = null;
+}
+
+function filterStnPop(q) {
+  q = (q || '').trim().toLowerCase();
+  // 「◯◯線」と入力したときだけ路線名検索（その路線を丸ごと表示）。それ以外は駅名検索。
+  const lineHit = /線$/.test(q);
+  let head = null, headMatch = false, headHasVisible = false;
+  for (const node of Array.from(stnPop._list.children)) {
+    if (node.classList.contains('stnpop-line')) {
+      if (head) head.hidden = !headHasVisible;
+      head = node; headHasVisible = false;
+      headMatch = lineHit && node.textContent.toLowerCase().includes(q);
+    } else if (node.classList.contains('stnpop-clear')) {
+      // クリア行は選択がある時のみ表示（openStnPop 側で制御）
+    } else {
+      const match = !q || headMatch || node.dataset.search.includes(q);
+      node.hidden = !match;
+      if (match) headHasVisible = true;
+    }
+  }
+  if (head) head.hidden = !headHasVisible;
+}
+
+function chooseStn(v) {
+  const t = stnTarget;
+  closeStnPop();
+  if (!t) return;
+  state[t] = v;
+  state.structIdx = 0;
+  $('#' + t + 'Sel').value = v;
+  updateStnBtn(t);
+  save();
+  renderRouteTab();
+  if ($('#panel-fare').classList.contains('active')) renderFareTab();
+  if ($('#panel-result').classList.contains('active')) recompute();
+}
+
+function updateStnBtn(target) {
+  const btn = $('#' + target + 'Btn');
+  const v = state[target];
+  if (!v) {
+    btn.textContent = target === 'via' ? '（指定なし）' : '駅を選択';
+    btn.classList.remove('has');
+    return;
+  }
+  btn.classList.add('has');
+  const lids = stationLines[v] || [];
+  btn.innerHTML = '';
+  lids.slice(0, 3).forEach(lid => {
+    const d = el('span', 'stndot'); d.style.background = LINES[lid].color; btn.appendChild(d);
+  });
+  btn.appendChild(document.createTextNode(v));
 }
 
 function setTab(name) {
@@ -979,15 +1095,15 @@ function exportPDF() {
 /* ---- 初期化 ---- */
 function init() {
   load();
-  fillStationSelect($('#fromSel'), state.from);
-  fillStationSelect($('#toSel'), state.to);
-  fillStationSelect($('#viaSel'), state.via, '（指定なし）');
-  $('#fromSel').onchange = e => { state.from = e.target.value; state.structIdx = 0; save(); renderRouteTab(); };
-  $('#toSel').onchange = e => { state.to = e.target.value; state.structIdx = 0; save(); renderRouteTab(); };
-  $('#viaSel').onchange = e => { state.via = e.target.value; state.structIdx = 0; save(); renderRouteTab(); };
+  ['from', 'to', 'via'].forEach(t => {
+    $('#' + t + 'Sel').value = state[t] || '';
+    updateStnBtn(t);
+    $('#' + t + 'Btn').onclick = ev => { ev.stopPropagation(); openStnPop(t, $('#' + t + 'Btn')); };
+  });
   $('#swapBtn').onclick = () => {
     [state.from, state.to] = [state.to, state.from];
     $('#fromSel').value = state.from; $('#toSel').value = state.to;
+    updateStnBtn('from'); updateStnBtn('to');
     state.structIdx = 0; save(); renderRouteTab();
   };
   $$('.tab').forEach(t => t.onclick = () => setTab(t.dataset.tab));
