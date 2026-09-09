@@ -1,0 +1,11 @@
+# scratch / local（検証用の使い捨てファイル）
+_*.html
+_*.txt
+dom_out.txt
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
